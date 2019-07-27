@@ -2,7 +2,8 @@ class BoardsController < ApplicationController
   before_action :set_target_board, only: %i[show edit update destroy]
 
     def index
-      @boards = Board.page(params[:page])
+      @boards = params[:tag_id].present? ? Tag.find(params[:tag_id]).boards : Board.all
+      @boards = @boards.page(params[:page])
     end
 
     def new
@@ -41,7 +42,7 @@ class BoardsController < ApplicationController
     end
 
     def destroy
-      @board.delete
+      @board.destroy
 
       redirect_to boards_path, flash: { notice: "「#{@board.title}」の掲示板が削除されました"}
     end
@@ -53,6 +54,6 @@ class BoardsController < ApplicationController
     end
 
     def board_params
-      params.require(:board).permit(:name, :title, :body) #他のカラムをパラメータにより更新させないようにするため
+      params.require(:board).permit(:name, :title, :body, tag_ids: []) #他のカラムをパラメータにより更新させないようにするため
     end
 end
